@@ -85,7 +85,9 @@ export default class Todos extends Component {
   delete = id => {
     db.collection("todos")
       .doc(id)
-      .delete();
+      .delete().then(
+        this.message("Eliminado")
+      )
   };
 
   message = message => {
