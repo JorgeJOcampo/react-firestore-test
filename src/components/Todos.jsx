@@ -71,6 +71,10 @@ export default class Todos extends Component {
       });
   };
 
+  delete = (id) => {
+    db.collection("todos").doc(id).delete();
+  }
+
   render() {
     const { items, inputValue } = this.state;
     return (
@@ -118,7 +122,7 @@ export default class Todos extends Component {
                   </Button>
                 </td>
                 <td>
-                  <Button color="danger">Eliminar</Button>
+                  <Button color="danger" onClick={() => this.delete(item.id)}>Eliminar</Button>
                 </td>
               </tr>
             ))}
