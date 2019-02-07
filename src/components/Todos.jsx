@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import db from "../firestore";
-import { Table, Button, Row, Col, InputGroup, Input } from "reactstrap";
+import { Table, Button, Row, Col, InputGroup, Input, Fade } from "reactstrap";
 
 export default class Todos extends Component {
   constructor() {
@@ -9,7 +9,9 @@ export default class Todos extends Component {
       items: [],
       inputValue: "",
       edit: false,
-      id: ""
+      id: "",
+      fadein: false,
+      message: ""
     };
   }
 
@@ -34,15 +36,14 @@ export default class Todos extends Component {
         item: inputValue
       })
       .then(() => {
-        console.log("Agregado");
+        this.message("Agregado");
       })
       .catch(error => {
-        console.log(error);
+        this.message(error);
       });
   };
 
   getTodo = id => {
-    console.log("id: ", id);
     let docRef = db.collection("todos").doc(id);
 
     docRef
@@ -68,12 +69,39 @@ export default class Todos extends Component {
       .doc(id)
       .update({
         item: inputValue
+      })
+      .then(() => {
+        this.message("Editado");
+      })
+      .catch(error => {
+        this.message(error);
       });
+
+    this.setState({
+      edit: false
+    });
   };
 
-  delete = (id) => {
-    db.collection("todos").doc(id).delete();
-  }
+  delete = id => {
+    db.collection("todos")
+      .doc(id)
+      .delete();
+  };
+
+  message = message => {
+    this.setState({
+      fadein: true,
+      message
+    });
+
+    setTimeout(() => {
+      this.setState({
+        fadein: false,
+        message: "",
+        inputValue: ""
+      });
+    }, 3000);
+  };
 
   render() {
     const { items, inputValue } = this.state;
@@ -104,6 +132,14 @@ export default class Todos extends Component {
           </Col>
         </Row>
 
+        <Fade
+          in={this.state.fadein}
+          tag="h6"
+          className="mt-3 text-center text-success"
+        >
+          {this.state.message}
+        </Fade>
+
         <Table hover className="text-center">
           <thead>
             <tr>
@@ -122,7 +158,9 @@ export default class Todos extends Component {
                   </Button>
                 </td>
                 <td>
-                  <Button color="danger" onClick={() => this.delete(item.id)}>Eliminar</Button>
+                  <Button color="danger" onClick={() => this.delete(item.id)}>
+                    Eliminar
+                  </Button>
                 </td>
               </tr>
             ))}
